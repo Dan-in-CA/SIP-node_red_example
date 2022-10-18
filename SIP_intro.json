@@ -1,0 +1,192 @@
+[
+    {
+        "id": "046e2a372ce4d76b",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "4af04e05d991e43e",
+        "type": "debug",
+        "z": "046e2a372ce4d76b",
+        "name": "debug SIP get",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 480,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "00e7bb780cae6681",
+        "type": "http request",
+        "z": "046e2a372ce4d76b",
+        "name": "",
+        "method": "GET",
+        "ret": "txt",
+        "paytoqs": "query",
+        "url": "localhost/jsin",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 270,
+        "y": 180,
+        "wires": [
+            [
+                "4af04e05d991e43e"
+            ]
+        ]
+    },
+    {
+        "id": "f307a465bab3a9a0",
+        "type": "inject",
+        "z": "046e2a372ce4d76b",
+        "name": "SIP get",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"sd\": \"wl\"}",
+        "payloadType": "json",
+        "x": 90,
+        "y": 180,
+        "wires": [
+            [
+                "00e7bb780cae6681"
+            ]
+        ]
+    },
+    {
+        "id": "7f5a45be1aba3f67",
+        "type": "http in",
+        "z": "046e2a372ce4d76b",
+        "name": "from SIP",
+        "url": "/node_red",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 100,
+        "y": 80,
+        "wires": [
+            [
+                "b8a2e47a92c24b7b",
+                "3ed228c7d2a4b8ae"
+            ]
+        ]
+    },
+    {
+        "id": "b8a2e47a92c24b7b",
+        "type": "debug",
+        "z": "046e2a372ce4d76b",
+        "name": "debug from SIP",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 480,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "3ed228c7d2a4b8ae",
+        "type": "http response",
+        "z": "046e2a372ce4d76b",
+        "name": "",
+        "statusCode": "200",
+        "headers": {
+            "content-type": "application/json"
+        },
+        "x": 260,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "41e4b7bc8eb6cdcd",
+        "type": "inject",
+        "z": "046e2a372ce4d76b",
+        "name": "SIP set",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"sn\":[2], \"set\": 1}",
+        "payloadType": "json",
+        "x": 90,
+        "y": 240,
+        "wires": [
+            [
+                "91bada16a507b88a"
+            ]
+        ],
+        "info": "## **SIP set** is used to change SIP settings or turn stations on or off.  \r\n\r\n### To change a SIP sd setting:  \r\nuse a JavaScript object of the following form:  \r\n**{\"sd\":\"wl\", \"val\": 50, \"save\": 0}**  \r\n**\"sd\"** refers to the SIP **Settings Dictionary**.  See the **gv_reference.txt** file in the SIP folder for a list of settings.  \r\n**\"wl\"** is the setting to be changed, The water level (\"wl\") setting is shown in the example above.  \r\n**\"val\"** is the new value the setting should have.  \r\n**\"save\"** (optioinal) controls if the setting will be saved to the **settings.json** file in the **SIP/data** folder.  \r\nIf \"save\" is **0** (default) or if \"save\" is not used, the setting will only be changed in memory and will not survive a software re-start or system reboot.  \r\nIf \"save is **1** the setting will persist.  \r\n\r\n### To change a SIP gv setting:  \r\n**{\"gv\":\"use_gpio_pins\", \"val\": 1}**  \r\n**\"gv\"** values are SIP variables that contain status and control data. They are also listed in **gv_reference.txt**.  \r\nyou can use the **SIP get** example flow to see the format of a \"gv\" value of interest.  \r\n\"gv\" values are not stored in a file and only kept in memory.\r\n\r\n### To turn one or more stations on or off:  \r\n**{\"sn\":[1,2], \"set\": 1, \"req mm\":1}**  \r\nThe required property can be **\"sn\"** or **\"station\"**. Either will work.  \r\nThe value is an array of one or more station numbers seperated by commas.  \r\nif **\"set\"** is **1** the station(s) will be turned on.  If \"set\" is **0** the station(s) will be turned off.   \r\n**\"req mm\"** (optional) means \"Require manual mode\". if it is **1** (default) or if \"req mm\" is not used, SIP must be Manual mode for this to work.  \r\nif \"req mm\" is **0** stations will be turned on or off even if SIP is not in Manual mode and other stations are running.\r\n\r\n### To start a Run-once program:  \r\n**{\"ro\": [[2, 5], [3, 5], [5, 5]], \"preempt\":1}**  \r\nThe required property can be **\"ro\"** or **\"run once\"**. Either will work.  \r\nThe value is an array of 2 element arrays (note the double [[ and ]] at the start and end). Each 2 element inner array contains a station number and the time in seconds for it to run.  \r\nIn the example shown above the first inner array **[2,5]** has station 2 running for 5 seconds  \r\n**\"preempt\"** (optional) controls if a program that is already running will be ended (preempted) when the run once program starts.  If \"preeempt\" is **1** (default) or if \"preempt\" is not used, any running program will be ended.  \r\nIf \"preempt\" is **0**, the run once program will be run allong with the already running program."
+    },
+    {
+        "id": "91bada16a507b88a",
+        "type": "http request",
+        "z": "046e2a372ce4d76b",
+        "name": "",
+        "method": "POST",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "localhost/jsin",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "credentials": {},
+        "x": 270,
+        "y": 240,
+        "wires": [
+            [
+                "46dfb1d8dab85fc9"
+            ]
+        ]
+    },
+    {
+        "id": "46dfb1d8dab85fc9",
+        "type": "debug",
+        "z": "046e2a372ce4d76b",
+        "name": "debug SIP set",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 480,
+        "y": 240,
+        "wires": []
+    }
+]
